@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copper Electroforming Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7f3ef;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 12px;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: #7a4f2e;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #bbb;
+            margin-bottom: 16px;
+        }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 7px;
+        }
+
+        .input-group label .unit {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #aaa;
+            margin-left: 4px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 13px 14px;
+            font-size: 1.15rem;
+            border: 1.5px solid #e8e0d8;
+            border-radius: 10px;
+            background: #fdfaf7;
+            color: #1a1a1a;
+            outline: none;
+            transition: border-color 0.15s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-group input:focus {
+            border-color: #b87333;
+        }
+
+        /* Result rows */
+        .result-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f0ea;
+        }
+
+        .result-row:first-child {
+            padding-top: 0;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #bbb;
+            margin-bottom: 3px;
+        }
+
+        .result-value {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* Anode matrix */
+        .target-note {
+            font-size: 0.82rem;
+            color: #aaa;
+            margin-bottom: 14px;
+        }
+
+        .target-note strong {
+            color: #7a4f2e;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 260px;
+        }
+
+        thead th {
+            padding: 0 8px 10px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #ccc;
+            border-bottom: 1.5px solid #f0ebe4;
+        }
+
+        thead th:first-child {
+            text-align: left;
+            padding-left: 0;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f7f3ef;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        tbody td:first-child {
+            text-align: left;
+            padding-left: 0;
+            font-size: 0.85rem;
+            color: #555;
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+
+        td.viable {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        td.not-viable {
+            color: #d0cac4;
+        }
+
+        tbody tr {
+            cursor: pointer;
+        }
+
+        tbody tr.selected {
+            background: #fdf3e7;
+        }
+
+        tbody tr.selected td:first-child {
+            color: #7a4f2e;
+            font-weight: 600;
+        }
+
+        tbody tr.selected td.viable {
+            color: #7a4f2e;
+        }
+
+        .legend {
+            font-size: 0.75rem;
+            color: #ccc;
+            margin-top: 12px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Copper Electroforming</h1>
+    <p>Bath Setup Calculator</p>
+</header>
+
+<div class="card">
+    <div class="card-title">Inputs</div>
+    <div class="input-group">
+        <label>Object surface area <span class="unit">sq in</span></label>
+        <input type="number" id="surfaceArea" placeholder="e.g. 6" min="0" step="any"
+               inputmode="decimal" oninput="calculate()">
+    </div>
+    <div class="input-group">
+        <label>Tank liquid depth <span class="unit">inches</span></label>
+        <input type="number" id="tankDepth" placeholder="e.g. 5" min="0" step="any"
+               inputmode="decimal" oninput="calculate()">
+    </div>
+</div>
+
+<div class="card" id="settingsCard" style="display:none">
+    <div class="card-title">Settings</div>
+    <div class="result-row">
+        <div class="result-label">Amp setting</div>
+        <div class="result-value" id="ampsValue"></div>
+    </div>
+    <div class="result-row">
+        <div class="result-label">Add 5 drops brightener</div>
+        <div class="result-value" id="brightenerValue"></div>
+    </div>
+</div>
+
+<div class="card" id="anodeCard" style="display:none">
+    <div class="card-title">Anode Options + Length Submerged</div>
+    <p class="target-note">Target anode area: <strong id="targetAreaValue"></strong></p>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>1 piece</th>
+                    <th>2 pieces</th>
+                    <th>3 pieces</th>
+                </tr>
+            </thead>
+            <tbody id="anodeBody"></tbody>
+        </table>
+    </div>
+    <p class="legend">Gray = exceeds tank depth</p>
+</div>
+
+<script>
+    const ANODE_TYPES = [
+        { name: '1" plate',   sqInPerInch: 2.0 },
+        { name: '2" plate',   sqInPerInch: 4.0 },
+        { name: '1/4" pipe',  sqInPerInch: Math.PI * 0.25 },
+        { name: '5/16" pipe', sqInPerInch: Math.PI * 0.3125 },
+        { name: '3/8" pipe',  sqInPerInch: Math.PI * 0.375 },
+        { name: '5/8" pipe',  sqInPerInch: Math.PI * 0.625 },
+        { name: '3/4" pipe',  sqInPerInch: Math.PI * 0.75 },
+    ];
+
+    // Maps eighths remainder (0–7) to simplified fraction strings
+    const FRACTION_MAP = ['', '1/8', '1/4', '3/8', '1/2', '5/8', '3/4', '7/8'];
+
+    function toFractionInches(decimal) {
+        if (decimal <= 0) return '0"';
+        const totalEighths = Math.round(decimal * 8);
+        const whole = Math.floor(totalEighths / 8);
+        const remainder = totalEighths % 8;
+        if (remainder === 0) return `${whole}"`;
+        if (whole === 0) return `${FRACTION_MAP[remainder]}"`;
+        return `${whole} ${FRACTION_MAP[remainder]}"`;
+    }
+
+    function formatTime(amps) {
+        const totalMinutes = 60 / amps;
+        let hours = Math.floor(totalMinutes / 60);
+        let minutes = Math.round(totalMinutes % 60);
+        // Handle rounding up to the next hour
+        if (minutes === 60) { hours += 1; minutes = 0; }
+        const h = (n) => `${n} hour${n !== 1 ? 's' : ''}`;
+        const m = (n) => `${n} minute${n !== 1 ? 's' : ''}`;
+        if (hours === 0) return `Every ${m(minutes)}`;
+        if (minutes === 0) return `Every ${h(hours)}`;
+        return `Every ${h(hours)} ${m(minutes)}`;
+    }
+
+    function formatAmps(amps) {
+        // Up to 2 decimal places, trimming trailing zeros
+        return (Math.round(amps * 100) / 100) + ' A';
+    }
+
+    function calculate() {
+        const surfaceArea = parseFloat(document.getElementById('surfaceArea').value);
+        const tankDepth   = parseFloat(document.getElementById('tankDepth').value);
+
+        const hasArea  = surfaceArea > 0 && !isNaN(surfaceArea);
+        const hasDepth = tankDepth > 0   && !isNaN(tankDepth);
+
+        if (!hasArea) {
+            document.getElementById('settingsCard').style.display = 'none';
+            document.getElementById('anodeCard').style.display    = 'none';
+            return;
+        }
+
+        // Amps and brightener (only need surface area)
+        const amps = surfaceArea / 10;
+        document.getElementById('ampsValue').textContent      = formatAmps(amps);
+        document.getElementById('brightenerValue').textContent = formatTime(amps);
+        document.getElementById('settingsCard').style.display = 'block';
+
+        if (!hasDepth) {
+            document.getElementById('anodeCard').style.display = 'none';
+            return;
+        }
+
+        // Anode matrix (needs both inputs)
+        const targetAnodeArea = surfaceArea * 2;
+        document.getElementById('targetAreaValue').textContent = targetAnodeArea + ' sq in';
+
+        const tbody = document.getElementById('anodeBody');
+        tbody.innerHTML = '';
+
+        ANODE_TYPES.forEach(anode => {
+            const row = document.createElement('tr');
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = anode.name;
+            row.appendChild(nameCell);
+
+            for (let pieces = 1; pieces <= 3; pieces++) {
+                const exactLength   = targetAnodeArea / anode.sqInPerInch / pieces;
+                const roundedLength = Math.round(exactLength * 8) / 8;
+                const viable        = roundedLength > 0 && roundedLength <= tankDepth;
+
+                const cell = document.createElement('td');
+                cell.textContent = toFractionInches(roundedLength);
+                cell.classList.add(viable ? 'viable' : 'not-viable');
+                row.appendChild(cell);
+            }
+
+            row.addEventListener('click', () => {
+                const isSelected = row.classList.contains('selected');
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+                if (!isSelected) row.classList.add('selected');
+            });
+
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('anodeCard').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
