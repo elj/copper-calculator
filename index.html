@@ -223,6 +223,8 @@
             text-align: right;
         }
     </style>
+    <script data-goatcounter="https://copper-calculator.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -380,6 +382,13 @@
 
         document.getElementById('anodeCard').style.display = 'block';
     }
+
+    document.getElementById('surfaceArea').addEventListener('blur', () => {
+        const val = parseFloat(document.getElementById('surfaceArea').value);
+        if (val > 0 && !isNaN(val) && window.goatcounter) {
+            window.goatcounter.count({ path: 'calculate', title: 'Calculate', event: true });
+        }
+    });
 </script>
 
 </body>
