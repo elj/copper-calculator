@@ -222,6 +222,26 @@
             margin-top: 12px;
             text-align: right;
         }
+
+        .info-text {
+            font-size: 0.85rem;
+            color: #777;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .info-text:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-text a {
+            color: #b87333;
+            text-decoration: none;
+        }
+
+        .info-text a:hover {
+            text-decoration: underline;
+        }
     </style>
     <script data-goatcounter="https://copper-calculator.goatcounter.com/count"
             async src="//gc.zgo.at/count.js"></script>
@@ -277,6 +297,14 @@
     </div>
     <p class="legend">Gray = exceeds tank depth</p>
     <p class="legend">Pipe sizes are measured outer diameters, which may be different from the number on the packaging depending on the type of pipe</p>
+</div>
+
+<div class="card">
+    <div class="card-title">How to use</div>
+    <p class="info-text">Enter your object's surface area and the depth of your solution in order to see the calculated amp setting, brightener frequency, and anode options.</p>
+    <div class="card-title" style="margin-top: 16px;">About this calculator</div>
+    <p class="info-text">Brightener frequency is calculated at 5 drops per amp hour, your brightener of choice may be different.</p>
+    <p class="info-text">Surface area of copper piping is only including the outer surface area, <a href="https://www.reddit.com/r/electroforming/comments/1rqirj9/how_i_calculate_copper_pipe_anode_surface_area/" target="_blank">see this post for details</a>.</p>
 </div>
 
 <script>
